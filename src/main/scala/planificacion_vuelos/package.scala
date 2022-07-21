@@ -1,5 +1,9 @@
 package object planificacion_vuelos {
-  package object planificacion_vuelos {
+  import scala.collection.{Map, Seq, mutable}
+  import scala.util.Random
+  import annotation.tailrec
+  import scala.collection.parallel.{ParSeq, ParMap}
+  import scala.collection.parallel.CollectionConverters._
 
     case class Aeropuerto(Cod:String,X:Int,Y:Int,GMT:Int)
     case class Vuelo(Aln:String, Num:Int, Org:String, HS:Int, MS:Int, Dst:String, HL:Int, ML:Int, Esc:Int)
@@ -76,12 +80,6 @@ package object planificacion_vuelos {
     //Encontrando rutas
     //vuelo(aln: aeoro, num: codVuelo, org: aeroOrig, hs: horaSale, ms:minutoSale, dst: aeroLlega, hl: horallega, ml:minutoLlega, ess: numEscalas )
 
-    /**
-     *dados dos aeropuertos, uno de salida y otro de llegada, devuelva la lista de itinerarios posibles para viajar entre esos dos aeropuertos.
-     */
-    /**
-     * Esqueleto funcion itinerarios
-     */
 
     def obtenerOrigen(origen: Vuelo):String = {
       origen.Org
@@ -90,7 +88,14 @@ package object planificacion_vuelos {
       destino.Dst
     }
 
-    def itineracios(a1:String, a2:String): List[Vuelo] = {
+  /**
+   * Esta funcion dados dos aeropuertos,uno de salida y otro de llegada,
+   * devuelve la lista de itinerarios posibles para viajar entre esos dos aeropuertos.
+   * @param a1 origen
+   * @param a2 destino
+   * @return lista de vuelos
+   */
+  def itineracios(a1:String, a2:String): List[Vuelo] = {
       for {
         vuelos <- vuelosB5
         if(obtenerOrigen(vuelos)==a1 && obtenerDestino(vuelos)==a2)
@@ -98,7 +103,38 @@ package object planificacion_vuelos {
 
     }
 
+  /**
+   * Esta funcion dados dos aeropuertos,uno de salida y otro de llegada,
+   * devuelve la lista de itinerarios posibles para viajar entre esos dos aeropuertos de forma paralela.
+   * @param a1 origen
+   * @param a2 destino
+   * @return lista de vuelos
+   */
+  def itineraciosPar(a1:String, a2:String): List[Vuelo] = {
+    val vuelos = for {
+      vuelos <- vuelosB5.par
+      if obtenerOrigen(vuelos)==a1 && obtenerDestino(vuelos)==a2
+    }yield vuelos
+    vuelos.toList
 
   }
+
+  /**
+   * Esta funcion nos ayudara a encontrar los itinerarios que cumplan una determinada ruta y a su vez
+   * cuenten con el menor numero de escalas posibles.
+   * @param a1 origen
+   * @param a2 destino
+   * @return lista de vuelos
+   */
+  def itineraciosMenorCambio(a1:String, a2:String): List[Vuelo] = {
+    val vuelos = for {
+      vuelos <- vuelosB5.par
+      if (obtenerOrigen(vuelos) == a1 && obtenerDestino(vuelos) == a2)
+    } yield vuelos
+
+    vuelos.toList.sortBy((x: Vuelo) => x.Esc).take(3)
+  }
+
+
 
 }
