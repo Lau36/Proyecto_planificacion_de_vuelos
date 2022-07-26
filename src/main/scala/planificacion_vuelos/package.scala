@@ -229,6 +229,7 @@ package object planificacion_vuelos {
     vuelos.sortBy((x: Vuelo) => x.Esc).drop(3)
   }
 
+
   /**
    * Esta funcion dados dos aeropuertos,uno de salida y otro de llegada,
    * devuelve la lista de itinerarios posibles para viajar entre esos dos aeropuertos de forma paralela.
@@ -244,6 +245,39 @@ package object planificacion_vuelos {
     vuelos.toList
 
   }
+
+  //Lo de santi
+  def obtenerGmt(aero: String) = {
+    val gmt = for {
+      aero1 <- aeropuertos
+      if aero == aero1.Cod
+    } yield aero1
+
+    gmt(0).GMT
+  }
+
+
+  def pasarAgmt(hora: Int, min: Int, gmt: Int) = {
+    var h = 0
+    val m = min
+
+    if (gmt > 0){
+      if ((hora - gmt) < 0) {
+        h = 24 + (hora-gmt)
+      }else{
+        h = hora-gmt
+      }
+    }else{
+      if ((hora + (-gmt)) > 24) {
+        h = ((hora + (-gmt)) - 24)
+      }else{
+        h = hora + gmt
+      }
+    }
+
+    List(h, m)
+  }
+
 
   /**
    * Esta funcion nos ayudara a encontrar los itinerarios que cumplan una determinada ruta y a su vez
