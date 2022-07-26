@@ -271,12 +271,13 @@ package object planificacion_vuelos {
       if ((hora + (-gmt)) > 24) {
         h = ((hora + (-gmt)) - 24)
       }else{
-        h = hora + gmt
+        h = hora + (-gmt)
       }
     }
 
     List(h, m)
   }
+
 
 
   /**
