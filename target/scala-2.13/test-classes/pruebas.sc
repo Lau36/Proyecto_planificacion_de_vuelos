@@ -1,30 +1,41 @@
 import planificacion_vuelos._
 
 val vuelo1 = Vuelo("DL", 593, "ATL", 19, 3, "DFW", 11, 17, 1)
-val vuelo2 = Vuelo("DL", 593, "ATL", 18, 17, "DFW", 1, 3, 1)
-val org1 = obtenerOrigen(vuelo1)
-val dst1 = obtenerDestino(vuelo1)
 
-/*val itenAcom = itinerarios(org1,dst1)
+
 //itenAcom.map((v:Vuelo)=> vueloConGMT(v))
 
-vueloConGMT(vuelo1)
-tiempoVuelo(vuelo2)
+
 
 //menorTiempoVuelo(org1,dst1)
 
 /*itinerariosMenorCambio(org1,dst1)*/
 
-//obtenerGmt(org1)
-pasarAgmt(vuelo1.HS,vuelo1.MS,obtenerGmt(org1))
-pasarAgmt(vuelo1.HL,vuelo1.ML,obtenerGmt(dst1))
+/*obtenerGmt(vuelo1.Org)
+obtenerGmt(vuelo1.Dst)
+pasarAgmt(vuelo1.HS,vuelo1.MS,obtenerGmt(vuelo1.Org))
+pasarAgmt(vuelo1.HL,vuelo1.ML,obtenerGmt(vuelo1.Dst))
 
-itenerariosMenorTiempoTotal(org1,dst1)
+itenerariosMenorTiempoTotal(vuelo1.Org,vuelo1.Dst)
 tiempoVuelo(Vuelo("DL",775,"ATL",14,38,"DFW",18,8,1))*/
 
-itinerarios(org1,dst1)
-genEscalas(org1,dst1)
-itinerarios2(org1,dst1)
+itinerarioV(vuelo1.Org,vuelo1.Dst)
+obtenerGmt(vuelo1.Org)
+obtenerGmt(vuelo1.Dst)
+tiempoVuelo(vuelo1)
+
+itinerarioGMT(itinerarioV(vuelo1.Org,vuelo1.Dst).head)
+itinerarioGMT(itinerarioV(vuelo1.Org,vuelo1.Dst)(1))
+itinerarioGMT(itinerarioV(vuelo1.Org,vuelo1.Dst)(2))
+
+val itiV = itinerarioV(vuelo1.Org,vuelo1.Dst)
+val itiL = itinerarioL(vuelo1.Org,vuelo1.Dst)
+
+itenerariosMenorTiempoTotal(vuelo1.Org,vuelo1.Dst)
+
+
+//itinerarios2(vuelo1.Org,vuelo1.Dst)
+
 
 
 
