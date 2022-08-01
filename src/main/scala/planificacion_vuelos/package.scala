@@ -1,3 +1,5 @@
+import planificacion_vuelos.itinerario
+
 package object planificacion_vuelos {
 
   import scala.collection.{Map, Seq, mutable}
@@ -47,30 +49,41 @@ package object planificacion_vuelos {
 
   def toItin(vuelo: Vuelo) = List(vuelo)
 
+  def vuelosOrigen(origen: String, vuelos: List[Vuelo]): List[Vuelo] = vuelos.filter(p => p.Org == origen)
+
+  def escalasPosibles(origen: String, vuelos: List[Vuelo]): List[Vuelo] = vuelos.filterNot(v => v.Org== origen || v.Dst== origen)
+
+  def lleganDestino(destino: String, itinerarios: List[Itinerario]): List[Itinerario] = itinerarios.filter((itin:Itinerario) => itin.last.Dst == destino)
+
+
   /**
    * Esta funcion dados dos aeropuertos,uno de salida y otro de llegada,
-   * devuelve la lista de itinerarios posibles para viajar entre esos dos aeropuertos de forma paralela.
+   * devuelve la lista de itinerarios posibles para viajar entre esos dos aeropuertos de forma paralela contando los vuelos directos y escalas.
    *
    * @param a1 origen
    * @param a2 destino
-   * @return lista de vuelos
+   * @return lista de itinerarios
    */
 
+  def itinerario(a1: String, a2: String): List[Itinerario] = {
 
-  /*def obtenerOrigen(origen: Vuelo):String = {
-      origen.Org
-    }
-    def obtenerDestino(destino: Vuelo):String = {
-      destino.Dst
-    }*/
+    def auxItinerario(a1: String, vuelo: List[Vuelo]): List[Itinerario] = {
+      if (vuelo.isEmpty) {
+        List(List())
 
-  def itinerarios1(a1: String, a2: String): List[Vuelo] = {
-    val vuelos = for {
-      vuelos1 <- vuelosB5
-      if (vuelos1.Org == a1 && vuelos1.Dst == a2)
+      } else {
+
+        val vuelosDirectos = vuelosOrigen(a1, vuelo).map(vuelo => List(vuelo))
+
+        val itinEscala = for {
+          vueloOrigen <- vuelosDirectos.map(f => f.head)
+          vueloEscala <- auxItinerario(vueloOrigen.Dst, escalasPosibles(vueloOrigen.Org, vuelo))
+        } yield vueloOrigen :: vueloEscala
+        vuelosDirectos ++ itinEscala
+      }
     }
-    yield vuelos1
-    vuelos
+
+    lleganDestino(a2, auxItinerario(a1, vuelosB5))
   }
 
   def itinerariosPar(a1: String, a2: String): List[Vuelo] = {
@@ -82,51 +95,13 @@ package object planificacion_vuelos {
     vuelos.toList
   }
 
-  def itinerarioV(a1: String, a2: String): List[Itinerario] = {
-    def vueloDirecto(a1: String, vuelo: List[Vuelo]): Itinerario = vuelo.filter(p => p.Org == a1)
 
-    def auxItinerario(a1: String, vuelo: List[Vuelo]): List[Itinerario] = {
-      if (vuelo.isEmpty) {
-        List(List())
-      } else {
-        val itinDirecto = vueloDirecto(a1, vuelo).map(x => List(x))
-        val itinEscala = for {
-          vueloP <- itinDirecto.map(f => f.head)
-          vueloD <- auxItinerario(vueloP.Dst, vuelosB5.filterNot(p => p.Org == a1 || p.Dst == a1))
-        } yield vueloP :: vueloD
-        itinDirecto ++ itinEscala
-      }
-    }
-
-    auxItinerario(a1, vuelosB5).filter((itinerario: List[Vuelo]) => itinerario.last.Dst == a2)
-  }
-
-
-  /*def vuelosDirectos(a1:String, a2:String): List[Itinerario] = {
-    val vuelos = for {
-      vuelos1 <- vuelosB5
-      if(vuelos1.Org==a1 && vuelos1.Dst==a2)
-    }
-    yield vuelos1
-    vuelos.map(x => toItin(x))
-  }
-  //ESCALAS
-  def genEscalas(a1: String, a2: String):List[Itinerario] = {
-    val escalas = for {
-      escs <- vuelosB5
-      if (escs.Dst == a2 && escs.Org!=a1) {
-        genEscalas(a1 == esc, a2)
-      }
-      else yield escs
-    } yield escs
-  }
-
-  def itinerarios2(a1: String, a2: String): List[Itinerario]={
-    vuelosDirectos(a1,a2) ++ genEscalas(a1,a2)
-  }*/
-
-  //Lo de santi----------------------------------------------------------------------------------------------------------------
-  def obtenerGmt(aero: String) = {
+  /**
+   * Funcion que nos ayuda a obtener el gmt de un aeropuerto, devolviendo su hora y minuto en una lista
+   * @param aero
+   * @return List(hora, minuto)
+   */
+  def obtenerGmt(aero: String):List[Int] = {
     val gmt = for {
       aero1 <- aeropuertos
       if aero == aero1.Cod
@@ -136,6 +111,14 @@ package object planificacion_vuelos {
   }
 
 
+  /**
+   * Funcion que recibe una hora, un minuto y una lisa de enteros que son la hora y el minuto GMT de un aeropuerto
+   * y devuelve la nueva hora y minuto en una lista, posterior a acomodar su gmt
+   * @param hora
+   * @param min
+   * @param gmt
+   * @return List(hora, minuto)
+   */
   def pasarAgmt(hora: Int, min: Int, gmt: List[Int]): List[Int] = {
     var h = 0
     var m = 0
@@ -183,6 +166,12 @@ package object planificacion_vuelos {
     List(h, m)
   }
 
+  /**
+   * Funcion que recibe un itinerario y evuelve cada vuelo de este con su hora en horario gmt, para así
+   * saber realmente a que hora salio un vuelo de manera general
+   * @param itinerario
+   * @return Itinerario
+   */
   def itinerarioGMT(itinerario: Itinerario): Itinerario = {
 
     def vueloConGMT(v1: Vuelo): Vuelo = {
@@ -197,6 +186,12 @@ package object planificacion_vuelos {
 
   }
 
+  /**
+   * funcion que recibe un vuelo y usando su hora de salida y de llegada calcula cuanto tardo en realizar el viaje,
+   * devolviendo su hora en formato 24 horas. once horas seria 1100,  una hora sería 100, un minuto sería 1
+   * @param vuelo
+   * @return List[hora]
+   */
   def tiempoVuelo(vuelo: Vuelo):List[String] = {
     var hour = 0
     var min = 0
@@ -205,34 +200,74 @@ package object planificacion_vuelos {
       if (vuelo.ML < vuelo.MS) {
         hour = 24 - vuelo.HS + vuelo.HL - 1
         min = 60 + vuelo.ML - vuelo.MS
-        List(hour.toString + min.toString)
+        List(hour.toString, min.toString)
       } else if (vuelo.ML == vuelo.MS) {
         hour = 24 - vuelo.HS + vuelo.HL
-        List(hour.toString + "00")
+        List(hour.toString, min.toString)
       } else {
         hour = 24 - vuelo.HS + vuelo.HL
         min = vuelo.ML - vuelo.MS
-        List(hour.toString + min.toString)
+        List(hour.toString, min.toString)
       }
     } else {
       if (vuelo.ML < vuelo.MS) {
         hour = vuelo.HL - vuelo.HS - 1
         min = 60 + vuelo.ML - vuelo.MS
-        List(hour.toString + min.toString)
+        List(hour.toString, min.toString)
       } else if (vuelo.ML == vuelo.MS) {
         hour = vuelo.HL - vuelo.HS
         List(hour.toString + min.toString)
       } else {
         hour = vuelo.HL - vuelo.HS
-        min = 60 + vuelo.ML - vuelo.MS
-        List(hour.toString + min.toString)
+        min = vuelo.ML - vuelo.MS
+        List(hour.toString, min.toString)
       }
     }
   }
 
-  def sacarTiempoVuelo(hs:Int, ms:Int, hl:Int, ml:Int): Int ={
+  /**
+   * Convierte una lista de String que viene con una hora y minuto List(hora, minuto) en un numero entero horaminuto
+   * @param hora
+   * @return int
+   */
+  def horatoInt(hora: List[String]): Int = {
+
+    if (hora.last.toInt < 10){
+      List(hora.head+"0"+hora.last).head.toInt
+    }else{
+      List(hora.head+hora.last).head.toInt
+    }
+
+  }
+
+  /**
+   * Recibe la hora y minuto de salida de primer vuelo, y la hora y minuto de llegada dle ultimo y calcula cuanto
+   * tomo realizar el viaje en total
+   * @param hs
+   * @param ms
+   * @param hl
+   * @param ml
+   * @return Int
+   */
+  def sacarTiempoViaje(hs:Int, ms:Int, hl:Int, ml:Int): Int ={
     val vueloImaginario = Vuelo("ALN",0,"ORG",hs,ms,"DST",hl, ml,0)
-    tiempoVuelo(vueloImaginario)(0).toInt
+    horatoInt(tiempoVuelo(vueloImaginario))
+  }
+
+  /**
+   * Recibe un itinerario con sus horas en gmt y las convierte a su hora local
+   * @param itinerario
+   * @return Itinerario
+   */
+  def gmtALocal(itinerario: Itinerario): Itinerario ={
+    def vueloConGMT(v1: Vuelo): Vuelo = {
+      val horaSalida = pasarAgmt(v1.HS, v1.MS, List(-obtenerGmt(v1.Org).head, -obtenerGmt(v1.Org).last))
+      val horaLlegada = pasarAgmt(v1.HL, v1.ML, List(-obtenerGmt(v1.Dst).head, -obtenerGmt(v1.Dst).last))
+      Vuelo(v1.Aln, v1.Num, v1.Org, horaSalida(0), horaSalida(1), v1.Dst, horaLlegada(0), horaLlegada(1), v1.Esc)
+    }
+    for {
+      vuelos <- itinerario
+    } yield vueloConGMT(vuelos)
   }
 
   /**
@@ -244,13 +279,22 @@ package object planificacion_vuelos {
    */
 
   def itenerariosMenorTiempoTotal(a1:String, a2:String): List [Itinerario] = {
-   val itinerarios = itinerarioV(a1:String, a2:String).map((itinerario:Itinerario) => itinerarioGMT(itinerario))
-   val vuelosOrdenadosTiempo = itinerarios.sortBy((i:Itinerario) => sacarTiempoVuelo(i.head.HS, i.head.MS, i.last.HS,i.last.MS))
-   vuelosOrdenadosTiempo.take(3)
- }
+    val itinerarios = itinerario(a1:String, a2:String).map((itinerario:Itinerario) => itinerarioGMT(itinerario))
+    val vuelosOrdenadosTiempo = itinerarios.sortBy((i:Itinerario) => sacarTiempoViaje(i.head.HS, i.head.MS, i.last.HS,i.last.MS))
+    vuelosOrdenadosTiempo.take(3).map(itinerario => gmtALocal(itinerario))
+  }
 
-  //-----------------------------------------------------------------------------------------------------------------------
 
+  /**
+   * Esta funcion suma las escalas de los itinerarios de vuelo contando la escala que hacen cuando se bajan del avion
+   *
+   * @param itinerario
+   * @return int
+   */
+
+  def sumEscalas(itinerario: Itinerario): Int = {
+    itinerario.collect { case vuelo: Vuelo => vuelo.Esc }.sum + itinerario.length - 1
+  }
 
   /**
    * Esta funcion nos ayudara a encontrar los itinerarios que cumplan una determinada ruta y a su vez
@@ -258,35 +302,34 @@ package object planificacion_vuelos {
    *
    * @param a1 origen
    * @param a2 destino
-   * @return lista de vuelos
+   * @return lista de itinerarios
    */
-
-  def sumEscalas(itinerario: Itinerario): Int = {
-    itinerario.collect { case vuelo: Vuelo => vuelo.Esc }.sum + itinerario.length - 1
-  }
-
   def itinierariosMenorEscalas(a1: String, a2: String): List[Itinerario] = {
-    itinerarioV(a1, a2).sortBy(itinerario => sumEscalas(itinerario)).take(3)
+    itinerario(a1, a2).sortBy(itinerario => sumEscalas(itinerario)).take(3)
   }
 
 
   /**
-   * Esta funcion dados dos aeropuertos, uno de salida y otro de llegada,
-   * encuentra al menos tres itinerarios (si los hay) que hagan el menor numero de cambios de avión,
-   * sin tener en cuenta el tiempo total de viaje (podrıa ser mas rapido cambiar varias veces de avión,
-   * que esperar la salida de un vuelo que lo lleve al destino sin cambiar de avión).
+   * Esta funcion realiza el tiempo de vuelo de cada itinerario sin contar el tiempo en tierra.
    *
-   * @param a1 origen
-   * @param a2 destino
-   * @return
+   * @param itinerario
+   * @return int
    */
 
   def sumarHoras(itinerario: Itinerario): Int ={
     itinerario.collect { case vuelo: Vuelo => tiempoVuelo(vuelo)(0).toInt}.sum
   }
 
+  /**
+   * Esta funcion dados dos aeropuertos, uno de salida y otro de llegada, encuentra tre itinerarios (si los hay)
+   * que hagan el menor numero de cambios de avion sin contar el tiempo total del vuelo.
+   *
+   * @param a1 origen
+   * @param a2 destino
+   * @return lista de itinerarios
+   */
   def itenerariosMenorTiempo(a1:String, a2:String): List [Itinerario] = {
-    val vuelos = itinerarioV(a1:String, a2:String).map((itinerario:Itinerario) => itinerarioGMT(itinerario))
+    val vuelos = itinerario(a1:String, a2:String).map((itinerario:Itinerario) => itinerarioGMT(itinerario))
     val vuelosOrdenadosTiempo = vuelos.sortBy((i:Itinerario) => sumarHoras(i))
     vuelosOrdenadosTiempo.take(3)
   }
@@ -297,9 +340,14 @@ package object planificacion_vuelos {
   * y llegar a tiempo a la cita (suponga que la cita es en el mismo aeropuerto).
   * @param a1 origen
   * @param a2 destino
-  * @return lista de vuelos
+  * @return lista de itinerarios
+  *
   */
 
- //  def itinerariosSalida(a1:String, a2:String, h, m)
+ def itinerariosSalida(a1:String, a2:String, h: Int, m: Int): List[Itinerario] = {
+   val vuelosATiempo = itinerario(a1, a2).filter((p:Itinerario) => horatoInt(List(p.last.HL.toString, p.last.ML.toString))
+     < horatoInt(List(h.toString, m.toString)))
+   vuelosATiempo.sortBy((i:Itinerario) => horatoInt(List(i.head.HS.toString, i.head.MS.toString))).reverse.take(3)
+ }
 
 }

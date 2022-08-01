@@ -19,17 +19,17 @@ pasarAgmt(vuelo1.HL,vuelo1.ML,obtenerGmt(vuelo1.Dst))
 itenerariosMenorTiempoTotal(vuelo1.Org,vuelo1.Dst)
 tiempoVuelo(Vuelo("DL",775,"ATL",14,38,"DFW",18,8,1))*/
 
-itinerarioV(vuelo1.Org,vuelo1.Dst)
+itinerario(vuelo1.Org,vuelo1.Dst)
 obtenerGmt(vuelo1.Org)
 obtenerGmt(vuelo1.Dst)
 tiempoVuelo(vuelo1)
 
-itinerarioGMT(itinerarioV(vuelo1.Org,vuelo1.Dst).head)
-itinerarioGMT(itinerarioV(vuelo1.Org,vuelo1.Dst)(1))
-itinerarioGMT(itinerarioV(vuelo1.Org,vuelo1.Dst)(2))
+itinerarioGMT(itinerario(vuelo1.Org,vuelo1.Dst).head)
+itinerarioGMT(itinerario(vuelo1.Org,vuelo1.Dst)(1))
+itinerarioGMT(itinerario(vuelo1.Org,vuelo1.Dst)(2))
 
-val itiV = itinerarioV(vuelo1.Org,vuelo1.Dst)
-val itiL = itinerarioL(vuelo1.Org,vuelo1.Dst)
+val itiV = itinerario(vuelo1.Org,vuelo1.Dst)
+val itiL = itinerario(vuelo1.Org,vuelo1.Dst)
 
 itenerariosMenorTiempoTotal(vuelo1.Org,vuelo1.Dst)
 
