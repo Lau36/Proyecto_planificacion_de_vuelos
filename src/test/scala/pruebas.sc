@@ -1,40 +1,25 @@
 import planificacion_vuelos._
+import org.scalameter._
 
-val vuelo1 = Vuelo("DL", 593, "ATL", 19, 3, "DFW", 11, 17, 1)
+val standardConfig = config (
+  Key.exec.minWarmupRuns := 20,
+  Key.exec.minWarmupRuns := 40,
+  Key.exec.benchRuns := 25,
+  Key.verbose := false
+) withWarmer(Warmer.Default())
 
+val vuelo1 =  Vuelo("DL", 269, "ATL", 12, 0, "LAX", 13, 30, 0)
 
-//itenAcom.map((v:Vuelo)=> vueloConGMT(v))
-
-
-
-//menorTiempoVuelo(org1,dst1)
-
-/*itinerariosMenorCambio(org1,dst1)*/
-
-/*obtenerGmt(vuelo1.Org)
-obtenerGmt(vuelo1.Dst)
-pasarAgmt(vuelo1.HS,vuelo1.MS,obtenerGmt(vuelo1.Org))
-pasarAgmt(vuelo1.HL,vuelo1.ML,obtenerGmt(vuelo1.Dst))
-
-itenerariosMenorTiempoTotal(vuelo1.Org,vuelo1.Dst)
-tiempoVuelo(Vuelo("DL",775,"ATL",14,38,"DFW",18,8,1))*/
+val itiSeqTiempo = standardConfig measure {itinerario(vuelo1.Org,vuelo1.Dst)}
+val itiParTiempo = standardConfig measure {itinerariosPar(vuelo1.Org,vuelo1.Dst)}
 
 itinerario(vuelo1.Org,vuelo1.Dst)
-obtenerGmt(vuelo1.Org)
-obtenerGmt(vuelo1.Dst)
-tiempoVuelo(vuelo1)
-
-itinerarioGMT(itinerario(vuelo1.Org,vuelo1.Dst).head)
-itinerarioGMT(itinerario(vuelo1.Org,vuelo1.Dst)(1))
-itinerarioGMT(itinerario(vuelo1.Org,vuelo1.Dst)(2))
-
-val itiV = itinerario(vuelo1.Org,vuelo1.Dst)
-val itiL = itinerario(vuelo1.Org,vuelo1.Dst)
-
-itenerariosMenorTiempoTotal(vuelo1.Org,vuelo1.Dst)
+itinerariosPar(vuelo1.Org,vuelo1.Dst)
 
 
-//itinerarios2(vuelo1.Org,vuelo1.Dst)
+
+
+
 
 
 
