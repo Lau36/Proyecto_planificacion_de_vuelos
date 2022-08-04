@@ -10,8 +10,6 @@ val standardConfig = config (
 
 val vuelo = Vuelo("AA", 27, "MIA", 8, 0, "SEA", 11, 27, 0)
 
-
-
 //TIEMPOS DE LAS FUNCIONES
 val itiSeqTiempo = standardConfig measure {itinerario(vuelo.Org,vuelo.Dst)}
 val itiParTiempo = standardConfig measure {itinerariosPar(vuelo.Org,vuelo.Dst)}
@@ -27,8 +25,6 @@ val tiempoMenorTiempoPar = standardConfig measure{itenerariosMenorTiempoPar(vuel
 
 val tiempoItinerarioSalidaSeq = standardConfig measure{itinerariosSalidaSeq(vuelo.Org,vuelo.Dst, 13, 10)}
 val tiempoItinerarioSalidaPar = standardConfig measure{itinerariosSalidaPar(vuelo.Org,vuelo.Dst, 13, 10)}
-
-
 
 //VALORES DE LAS FUNCIONES
 val itinerarioSeq = itinerario(vuelo.Org,vuelo.Dst)

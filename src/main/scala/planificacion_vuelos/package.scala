@@ -748,6 +748,7 @@ package object planificacion_vuelos {
     } yield vueloConGMT(vuelos)
   }
 
+
   /**
    * funcion que recibe un vuelo y usando su hora de salida y de llegada calcula cuanto tardo en realizar el viaje,
    * devolviendo su hora en formato 24 horas. once horas seria 1100,  una hora sería 100, un minuto sería 1
@@ -755,6 +756,8 @@ package object planificacion_vuelos {
    * @return List[hora]
    */
   def tiempoVuelo(vuelo: Vuelo):List[String] = {
+
+
     if (vuelo.HL < vuelo.HS) {
       if (vuelo.ML < vuelo.MS) {
         val hour = 24 - vuelo.HS + vuelo.HL - 1
@@ -775,7 +778,7 @@ package object planificacion_vuelos {
         List(hour.toString, min.toString)
       } else if (vuelo.ML == vuelo.MS) {
         val hour = vuelo.HL - vuelo.HS
-        List(hour.toString + "0")
+        List(hour.toString, "0")
       } else {
         val hour = vuelo.HL - vuelo.HS
         val min = vuelo.ML - vuelo.MS
@@ -887,7 +890,7 @@ package object planificacion_vuelos {
    */
 
   def sumarHoras(itinerario: Itinerario): Int ={
-    itinerario.collect { case vuelo: Vuelo => tiempoVuelo(vuelo)(0).toInt}.sum
+    itinerario.collect { case vuelo: Vuelo => horatoInt(tiempoVuelo(vuelo))}.sum
   }
 
   /**
